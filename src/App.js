@@ -276,6 +276,7 @@ function Enable(props) {
       crossDomain: true,
       success: function(response) {
         console.log(response);
+        alert('enable info is in console. I am considering turn the return URL and data to a QR code.')
       },
       error: function(error) {
         console.error(error);
@@ -449,7 +450,7 @@ function Current(props) {
           <ul>
             {foods.map((food) => (
             <>
-              <li>{food.foodName}</li>
+              <li>{food.foodName}, ordered quantity: {food.quantity}</li>
               <input type="number" id={food.id} defaultValue ={1} min ={1} max={food.quantity}></input>
               <button onClick={() => handleDeleteClick(selectedTable, $(`#${food.id}`).val(), food)}>delete</button>
             </>
