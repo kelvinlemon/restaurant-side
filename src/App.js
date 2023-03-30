@@ -128,7 +128,8 @@ function App() {
       withCredentials: 'include',
       crossDomain: true,
       success: function(response) {
-        setPageData(response);
+        const sortedData = response.sort((a, b) => parseInt(a.table) - parseInt(b.table));
+        setPageData(sortedData);
         setActiveTab(index);
       },
       error: function(error) {
@@ -244,7 +245,7 @@ function App() {
                 ))}
               </div>
               <div className="tab-content">
-                {activeTab === 0 && <Enable  enableData={PageData}/>}
+                {activeTab === 0 && <Enable  enableData={PageData} reload={EnablePageClick} index={0} reSet = {setActiveTab}/>}
                 {activeTab === 1 && <Current currentData={PageData} reload={CurrentTablePageClick} index={1} reSet = {setActiveTab}/>}
                 {activeTab === 2 && <History historyData={PageData} reload={OrderHistoryPageClick} index={2} reSet = {setActiveTab}/>}
                 {activeTab === 3 && <Add />}
@@ -260,10 +261,10 @@ function App() {
 
 
 function Enable(props) {
-  const tableCount = props.enableData.length;
 
   // Create an array of table numbers from 1 to tableCount
-  const tableNumbers = Array.from({ length: tableCount }, (_, index) => index + 1);
+
+  const [tables, setTables] = useState(props.enableData);
 
   // Handle click event when the enable button is clicked
   const handleEnableClick = (tableNumber) => {
@@ -277,6 +278,8 @@ function Enable(props) {
       success: function(response) {
         console.log(response);
         alert('enable info is in console, no need to care here it is for customer side to check customer session is valid or not. I am considering turn the return URL and data to a QR code.')
+        props.reSet(null);
+        props.reload(props.index); 
       },
       error: function(error) {
         console.error(error);
@@ -288,9 +291,9 @@ function Enable(props) {
     <div>
       <p>Select a table to enable:</p>
       <ul>
-        {tableNumbers.map((tableNumber) => (
-          <li key={tableNumber}>
-            Table {tableNumber} <button onClick={() => handleEnableClick(tableNumber)}>Enable</button>
+        {tables.map((table) => (
+          <li key={table._id}>
+            Table {table.table}, status:{table.status} <button onClick={() => handleEnableClick(table.table)}>Enable</button>
           </li>
         ))}
       </ul>
