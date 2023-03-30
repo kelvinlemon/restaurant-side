@@ -276,7 +276,7 @@ function Enable(props) {
       crossDomain: true,
       success: function(response) {
         console.log(response);
-        alert('enable info is in console. I am considering turn the return URL and data to a QR code.')
+        alert('enable info is in console, no need to care here it is for customer side to check customer session is valid or not. I am considering turn the return URL and data to a QR code.')
       },
       error: function(error) {
         console.error(error);
