@@ -276,10 +276,15 @@ function Enable(props) {
       withCredentials: 'include',
       crossDomain: true,
       success: function(response) {
-        console.log(response);
-        alert('enable info is in console, no need to care here it is for customer side to check customer session is valid or not. I am considering turn the return URL and data to a QR code.')
+        var url = `http://localhost:3000/?data=${response[0]['data'].table}${response[0]['data'].session}`
+        console.log(url);
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='${url}'`;
+        const newWindow = window.open('', 'QR Code', 'width=300,height=300');
+        newWindow.document.body.innerHTML = `<img src="${qrCodeUrl}" alt="QR Code"/>`;
+    
+
         props.reSet(null);
-        props.reload(props.index); 
+        props.reload(props.index);
       },
       error: function(error) {
         console.error(error);
