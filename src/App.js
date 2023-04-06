@@ -276,7 +276,7 @@ function Enable(props) {
       withCredentials: 'include',
       crossDomain: true,
       success: function(response) {
-        var url = `http://localhost:3000/?data=${response[0]['data'].table}${response[0]['data'].session}`
+        var url = `https://user-side.herokuapp.com/?data=${response[0]['data'].table}${response[0]['data'].session}`
         console.log(url);
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data='${url}'`;
         const newWindow = window.open('', 'QR Code', 'width=300,height=300');
