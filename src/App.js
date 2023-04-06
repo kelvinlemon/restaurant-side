@@ -13,13 +13,20 @@ function parseTime(timeString) {
   return new Date(year, monthIndex, dayOfMonth, hours, minutes, seconds);
 }
 
+
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState('');
   const tabs = ["Enable Table", "Current Table", "Order History", "Add Food", "Delete Food"];
   const [PageData, setPageData] = useState([]);
+  const [intervalId, setIntervalId] = useState(null);
 
+  const stopPolling = () => {
+    clearInterval(intervalId);
+    setIntervalId(null);
+  };
   
   useEffect( () => {
       $.ajax({
@@ -105,6 +112,7 @@ function App() {
 
   const handleTabClick = (index) => {
     //setActiveTab(index);
+    stopPolling();
     if (index == 0){
       EnablePageClick(index);
     }else if (index == 1){
@@ -246,7 +254,7 @@ function App() {
               </div>
               <div className="tab-content">
                 {activeTab === 0 && <Enable  enableData={PageData} reload={EnablePageClick} index={0} reSet = {setActiveTab}/>}
-                {activeTab === 1 && <Current currentData={PageData} reload={CurrentTablePageClick} index={1} reSet = {setActiveTab}/>}
+                {activeTab === 1 && <Current currentData={PageData} reload={CurrentTablePageClick} index={1} reSet = {setActiveTab} stopPolling={stopPolling} intervalId={intervalId} setIntervalId={setIntervalId}/>}
                 {activeTab === 2 && <History historyData={PageData} reload={OrderHistoryPageClick} index={2} reSet = {setActiveTab}/>}
                 {activeTab === 3 && <Add />}
                 {activeTab === 4 && <Delete deleteData={PageData} reload={DeleteFoodPageClick} index={4} reSet = {setActiveTab}/>}
@@ -333,24 +341,30 @@ function Current(props) {
   // Handle click event when a table row is clicked
   const handleTableRowClick = (table) => {
     console.log(`Selected table: ${table.table}`);
+    startPolling(table);
+    handleTableRequest(table);
+    
+  };
+  const handleTableRequest = (table) => {
     $.ajax({
       type: 'GET',
-      url: 'https://sdp2023-dbapi.herokuapp.com/clicktable/'+table.table,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},   
+      url: 'https://sdp2023-dbapi.herokuapp.com/clicktable/' + table.table,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       xhrFields: { withCredentials: true },
       withCredentials: 'include',
       crossDomain: true,
-      success: function(response) {
+      success: function (response) {
         console.log(response);
-        if (response != 'No food ordered yet!'){
+        if (response != 'No food ordered yet!') {
+          
           setFoods(response);
-        }else{
+        } else {
           setFoods(null);
         }
         setSelectedTable(table);
         //interval;
       },
-      error: function(error) {
+      error: function (error) {
         console.error(error);
       }
     });
@@ -361,8 +375,16 @@ function Current(props) {
   }, 1000);*/
 
   // Handle click event when the back button is clicked
+  const startPolling = (table) => {
+    const id = setInterval(() => handleTableRequest(table), 3000); // Call handleTableRowClick every 3 seconds
+    props.setIntervalId(id);
+  };
+
+
+  // Handle click event when the back button is clicked
   const handleBackClick = () => {
     setSelectedTable(null);
+    props.stopPolling();
   };
 
   // Handle click event when the check button is clicked
